@@ -18,7 +18,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0  # Importante para que Sonar detecte bien los cambios nuevos
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -32,7 +32,7 @@ jobs:
         run: echo "dart-sdk=$(dirname $(which dart))" >> $GITHUB_OUTPUT
 
       - name: Install Flutter dependencies
-        working-directory: frontend/shelter_ai
+        working-directory: frontend/shelter_ai  # 👈 Tu proyecto está aquí
         run: flutter pub get
 
       - name: Verify Flutter installation
@@ -44,6 +44,7 @@ jobs:
 
       - name: Run Flutter tests with coverage
         working-directory: frontend/shelter_ai
+        # Genera el archivo lcov.info necesario para Sonar
         run: flutter test --coverage --reporter expanded
 
       - name: Display coverage summary
@@ -51,7 +52,18 @@ jobs:
         run: |
           if [ -f coverage/lcov.info ]; then
             echo "✅ Coverage report generated successfully"
-            echo "Coverage file location: coverage/lcov.info"
+            ls -la coverage/lcov.info
           else
             echo "⚠️ No coverage report generated"
+            exit 1  # Fallar si no hay reporte
           fi
+
+      # --- EL PASO QUE FALTABA ---
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Necesario
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}    # Tienes que haberlo puesto en GitHub Secrets
+        with:
+          # CRITICO: Le dice a Sonar que entre en tu subcarpeta antes de escanear
+          projectBaseDir: frontend/shelter_ai
