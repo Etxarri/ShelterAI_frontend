@@ -52,18 +52,26 @@ jobs:
         run: |
           if [ -f coverage/lcov.info ]; then
             echo "✅ Coverage report generated successfully"
-            ls -la coverage/lcov.info
           else
             echo "⚠️ No coverage report generated"
-            exit 1  # Fallar si no hay reporte
+            exit 1
           fi
 
-      # --- EL PASO QUE FALTABA ---
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+      # --- AQUÍ ESTÁ EL CAMBIO ---
+      - name: SonarQube Cloud Scan
+        # Actualizado a la nueva versión oficial (quita el warning amarillo)
+        uses: SonarSource/sonarqube-scan-action@v4
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Necesario
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}    # Tienes que haberlo puesto en GitHub Secrets
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          # CRITICO: Le dice a Sonar que entre en tu subcarpeta antes de escanear
+          # Esto indica dónde arrancar el escáner
           projectBaseDir: frontend/shelter_ai
+          # Esto fuerza a pasar los argumentos clave por si el archivo falla
+          args: >
+            -Dsonar.organization=etxarri
+            -Dsonar.projectKey=Etxarri_ShelterAI_frontend
+            -Dsonar.sources=lib
+            -Dsonar.tests=test
+            -Dsonar.dart.coverage.reportPaths=coverage/lcov.info
+            -Dsonar.exclusions=**/*.g.dart,**/*.freezed.dart,**/*.config.dart,**/generated/**
