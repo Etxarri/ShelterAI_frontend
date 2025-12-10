@@ -44,8 +44,11 @@ jobs:
 
       - name: Run Flutter tests with coverage
         working-directory: frontend/shelter_ai
-        # Genera el archivo lcov.info necesario para Sonar
-        run: flutter test --coverage --reporter expanded
+        run: |
+          flutter test --coverage --reporter expanded
+          # --- COMANDO MAGICO PARA ARREGLAR RUTAS ---
+          # Esto convierte "/home/runner/.../lib/archivo.dart" en "lib/archivo.dart"
+          sed -i 's|^SF:.*lib/|SF:lib/|g' coverage/lcov.info
 
       - name: Display coverage summary
         working-directory: frontend/shelter_ai
