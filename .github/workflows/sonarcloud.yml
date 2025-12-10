@@ -60,9 +60,10 @@ jobs:
           restore-keys: ${{ runner.os }}-sonar
 
       - name: SonarCloud Analysis
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarqube-scan-action@v5
         with:
           projectBaseDir: frontend/shelter_ai
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
