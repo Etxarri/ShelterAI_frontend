@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-// ⚠️ Asegúrate de que este import sea correcto para tu proyecto 
+
 import 'package:shelter_ai/services/api_service.dart';
 
 void main() {

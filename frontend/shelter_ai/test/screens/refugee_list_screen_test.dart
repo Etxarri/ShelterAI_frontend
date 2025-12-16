@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
-// 👇 IMPORTS EXACTOS (Ajusta si tu proyecto no se llama shelter_ai)
 import 'package:shelter_ai/services/api_service.dart';
 import 'package:shelter_ai/screens/refugee_list_screen.dart';
 import 'package:shelter_ai/widgets/refugee_card.dart';

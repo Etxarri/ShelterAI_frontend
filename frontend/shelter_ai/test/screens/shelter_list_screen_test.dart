@@ -4,9 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
-// 👇 IMPORTS: Asegúrate de que coinciden con los de tu pantalla real
 import 'package:shelter_ai/services/api_service.dart';
-import 'package:shelter_ai/screens/shelter_list_screen.dart'; // Ajusta si el nombre del archivo es distinto
+import 'package:shelter_ai/screens/shelter_list_screen.dart';
 import 'package:shelter_ai/widgets/shelter_card.dart';
 
 void main() {
@@ -72,21 +71,21 @@ void main() {
       setScreenSize(tester);
 
       final mockClient = MockClient((request) async {
-        // Datos simulados de refugios
+        // Datos simulados de refugios con campos que coinciden con shelter_card
         final mockData = [
           {
             'name': 'Refugio Central',
             'address': 'Calle Mayor 1',
-            'capacity': 100,
-            'occupancy': 50,
-            'phone': '555-1234'
+            'max_capacity': 100,
+            'current_occupancy': 50,
+            'shelter_type': 'Temporal'
           },
           {
             'name': 'Albergue Norte',
             'address': 'Av. Libertad 20',
-            'capacity': 60,
-            'occupancy': 10,
-            'phone': '555-5678'
+            'max_capacity': 60,
+            'current_occupancy': 10,
+            'shelter_type': 'Permanente'
           }
         ];
         return http.Response(json.encode(mockData), 200);

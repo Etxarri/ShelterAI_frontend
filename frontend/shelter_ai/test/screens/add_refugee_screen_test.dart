@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
-// 👇 ESTA LÍNEA DEBE SER IDÉNTICA A LA DEL OTRO ARCHIVO
 import 'package:shelter_ai/services/api_service.dart';
 import 'package:shelter_ai/screens/add_refugee_screen.dart';
 
@@ -83,13 +82,13 @@ void main() {
       // Resto de campos
       await tester.enterText(find.widgetWithText(TextFormField, 'Nacionalidad'), 'Española');
       await tester.enterText(find.widgetWithText(TextFormField, 'Idiomas (separados por comas)'), 'Español');
-      await tester.enterText(find.widgetWithText(TextFormField, 'Teléfono'), '666777888');
-      await tester.enterText(find.widgetWithText(TextFormField, 'Email'), 'juan@test.com');
+      await tester.enterText(find.widgetWithText(TextFormField, 'Condiciones médicas'), 'Ninguna');
       
       await tester.tap(find.widgetWithText(SwitchListTile, 'Tiene discapacidad'));
       await tester.pump();
 
-      await tester.enterText(find.widgetWithText(TextFormField, 'Puntuación de vulnerabilidad'), '8.5');
+      await tester.enterText(find.widgetWithText(TextFormField, 'Puntuación de vulnerabilidad'), '85');
+      await tester.enterText(find.widgetWithText(TextFormField, 'Necesidades especiales'), 'Ninguna');
       await tester.enterText(find.widgetWithText(TextFormField, 'ID de familia (opcional)'), '123');
 
       // 3. Pulsamos Guardar
