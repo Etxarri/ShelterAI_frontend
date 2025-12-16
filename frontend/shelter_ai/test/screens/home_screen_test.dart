@@ -131,6 +131,7 @@ void main() {
       ApiService.client = mockClient;
 
       bool refugeesRouteVisited = false;
+      // ignore: unused_local_variable
       bool sheltersRouteVisited = false;
 
       await tester.pumpWidget(MaterialApp(
