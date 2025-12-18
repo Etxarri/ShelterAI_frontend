@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-// 👇 ESTA LÍNEA ES LA QUE ARREGLA EL ERROR DE CONEXIÓN
 import 'package:shelter_ai/services/api_service.dart';
+import 'package:shelter_ai/models/refugee_assignment_response.dart';
+import 'package:shelter_ai/screens/assignment_detail_screen.dart';
 
 class AddRefugeeScreen extends StatefulWidget {
   const AddRefugeeScreen({super.key});
@@ -38,8 +39,13 @@ class _AddRefugeeScreenState extends State<AddRefugeeScreen> {
     super.dispose();
   }
 
+  // ignore: unused_field
+  bool _isLoading = false;
+
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
 
     final Map<String, dynamic> payload = {
       'first_name': _firstNameCtrl.text.trim(),
@@ -49,27 +55,164 @@ class _AddRefugeeScreenState extends State<AddRefugeeScreen> {
       'nationality': _nationalityCtrl.text.trim(),
       'languages_spoken': _languagesCtrl.text.trim(),
       'family_id': _familyIdCtrl.text.isEmpty ? null : int.tryParse(_familyIdCtrl.text.trim()),
-      'medical_conditions': _medicalCtrl.text.trim(),
-      'special_needs': _specialNeedsCtrl.text.trim(),
+      'medical_conditions': _medicalCtrl.text.trim().isEmpty ? null : _medicalCtrl.text.trim(),
+      'special_needs': _specialNeedsCtrl.text.trim().isEmpty ? null : _specialNeedsCtrl.text.trim(),
       'vulnerability_score': int.tryParse(_vulnerabilityCtrl.text.trim()) ?? 0,
       'has_disability': _hasDisability,
     };
 
     try {
-      await ApiService.addRefugee(payload);
+      // Use the endpoint with automatic assignment
+      final response = await ApiService.addRefugeeWithAssignment(payload);
+      final assignmentResponse = RefugeeAssignmentResponse.fromJson(response);
+      
+      setState(() => _isLoading = false);
+      
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Refugiado guardado')));
-      Navigator.of(context).pop(true);
+      
+      // Show result and navigate to detail screen
+      _showSuccessDialog(assignmentResponse);
     } catch (e) {
+      setState(() => _isLoading = false);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
+  }
+
+  void _showSuccessDialog(RefugeeAssignmentResponse response) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.check_circle, color: Colors.green, size: 32),
+            SizedBox(width: 12),
+            Expanded(child: Text('Refugee Registered')),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${response.refugee.fullName}',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 16),
+            Container(
+              padding: EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.home, color: Colors.blue, size: 20),
+                      SizedBox(width: 8),
+                      Text('Assigned Shelter:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    response.assignment.shelterName,
+                    style: TextStyle(fontSize: 16, color: Colors.blue.shade800),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildScoreCard(
+                    'Priority',
+                    response.assignment.priorityScore,
+                    response.assignment.priorityColor,
+                  ),
+                ),
+                SizedBox(width: 8),
+                Expanded(
+                  child: _buildScoreCard(
+                    'Confidence',
+                    response.assignment.confidencePercentage,
+                    Colors.teal,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close dialog
+              Navigator.of(context).pop(true); // Return to list
+            },
+            child: Text('Close'),
+          ),
+          ElevatedButton.icon(
+            icon: Icon(Icons.info_outline),
+            label: Text('View Details'),
+            onPressed: () {
+              Navigator.of(context).pop(); // Close dialog
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => AssignmentDetailScreen(
+                    response: response,
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildScoreCard(String label, double value, Color color) {
+    return Container(
+      padding: EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Column(
+        children: [
+          Text(
+            label,
+            style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+          ),
+          SizedBox(height: 4),
+          Text(
+            '${value.toStringAsFixed(0)}${label == 'Confidence' ? '%' : ''}',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Añadir Refugiado')),
+      appBar: AppBar(title: const Text('Add Refugee')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -79,24 +222,24 @@ class _AddRefugeeScreenState extends State<AddRefugeeScreen> {
             children: [
               TextFormField(
                 controller: _firstNameCtrl,
-                decoration: const InputDecoration(labelText: 'Nombre'),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Requerido' : null,
+                decoration: const InputDecoration(labelText: 'First Name'),
+                validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
               ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _lastNameCtrl,
-                decoration: const InputDecoration(labelText: 'Apellidos'),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Requerido' : null,
+                decoration: const InputDecoration(labelText: 'Last Name'),
+                validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
               ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _ageCtrl,
-                decoration: const InputDecoration(labelText: 'Edad'),
+                decoration: const InputDecoration(labelText: 'Age'),
                 keyboardType: TextInputType.number,
                 validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'Requerido';
+                  if (v == null || v.trim().isEmpty) return 'Required';
                   final n = int.tryParse(v);
-                  if (n == null || n < 0) return 'Edad inválida';
+                  if (n == null || n < 0) return 'Invalid age';
                   return null;
                 },
               ),
@@ -104,41 +247,41 @@ class _AddRefugeeScreenState extends State<AddRefugeeScreen> {
               DropdownButtonFormField<String>(
                 value: _gender,
                 items: const [
-                  DropdownMenuItem(value: 'Masculino', child: Text('Masculino')),
-                  DropdownMenuItem(value: 'Femenino', child: Text('Femenino')),
-                  DropdownMenuItem(value: 'Otro', child: Text('Otro')),
+                  DropdownMenuItem(value: 'Masculino', child: Text('Male')),
+                  DropdownMenuItem(value: 'Femenino', child: Text('Female')),
+                  DropdownMenuItem(value: 'Otro', child: Text('Other')),
                 ],
                 onChanged: (v) => setState(() => _gender = v ?? 'Masculino'),
-                decoration: const InputDecoration(labelText: 'Género'),
+                decoration: const InputDecoration(labelText: 'Gender'),
               ),
               const SizedBox(height: 8),
-              TextFormField(controller: _nationalityCtrl, decoration: const InputDecoration(labelText: 'Nacionalidad')),
+              TextFormField(controller: _nationalityCtrl, decoration: const InputDecoration(labelText: 'Nationality')),
               const SizedBox(height: 8),
-              TextFormField(controller: _languagesCtrl, decoration: const InputDecoration(labelText: 'Idiomas (separados por comas)')),
+              TextFormField(controller: _languagesCtrl, decoration: const InputDecoration(labelText: 'Languages (comma separated)')),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _medicalCtrl,
-                decoration: const InputDecoration(labelText: 'Condiciones médicas'),
+                decoration: const InputDecoration(labelText: 'Medical Conditions'),
                 maxLines: 2,
               ),
               const SizedBox(height: 8),
               SwitchListTile(
-                title: const Text('Tiene discapacidad'),
+                title: const Text('Has Disability'),
                 value: _hasDisability,
                 onChanged: (v) => setState(() => _hasDisability = v),
               ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _vulnerabilityCtrl,
-                decoration: const InputDecoration(labelText: 'Puntuación de vulnerabilidad'),
+                decoration: const InputDecoration(labelText: 'Vulnerability Score'),
                 keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 8),
-              TextFormField(controller: _specialNeedsCtrl, decoration: const InputDecoration(labelText: 'Necesidades especiales'), maxLines: 2),
+              TextFormField(controller: _specialNeedsCtrl, decoration: const InputDecoration(labelText: 'Special Needs'), maxLines: 2),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _familyIdCtrl,
-                decoration: const InputDecoration(labelText: 'ID de familia (opcional)'),
+                decoration: const InputDecoration(labelText: 'Family ID (optional)'),
                 keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 16),
@@ -146,7 +289,7 @@ class _AddRefugeeScreenState extends State<AddRefugeeScreen> {
                 onPressed: _save,
                 child: const Padding(
                   padding: EdgeInsets.symmetric(vertical: 12),
-                  child: Text('Guardar'),
+                  child: Text('Save'),
                 ),
               ),
             ],
