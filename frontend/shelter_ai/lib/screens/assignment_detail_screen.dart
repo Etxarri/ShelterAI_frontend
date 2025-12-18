@@ -261,7 +261,7 @@ class AssignmentDetailScreen extends StatelessWidget {
                               ],
                             ),
                           );
-                        }).toList(),
+                        }),
                       ],
                     ),
                   ),
