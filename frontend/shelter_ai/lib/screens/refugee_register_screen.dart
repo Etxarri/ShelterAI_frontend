@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shelter_ai/providers/auth_state.dart';
 import 'package:shelter_ai/services/auth_service.dart';
 import 'package:shelter_ai/widgets/form_card_container.dart';
+import 'package:shelter_ai/widgets/auth_button.dart';
 
 class RefugeeRegisterScreen extends StatefulWidget {
   const RefugeeRegisterScreen({super.key});

@@ -3,6 +3,7 @@ import '../widgets/custom_snackbar.dart';
 import 'package:shelter_ai/providers/auth_state.dart';
 import 'package:shelter_ai/services/auth_service.dart';
 import 'package:shelter_ai/widgets/form_card_container.dart';
+import 'package:shelter_ai/widgets/auth_button.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -109,46 +110,28 @@ class _LoginScreenState extends State<LoginScreen> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
-                  TextField(
+                  AuthTextField(
                     controller: _identifierCtrl,
-                    decoration: InputDecoration(
-                      labelText: 'Email, phone or username',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      prefixIcon: const Icon(Icons.person),
-                    ),
+                    labelText: 'Email, phone or username',
+                    prefixIcon: Icons.person,
                     keyboardType: TextInputType.text,
                     enabled: !_isLoading,
                   ),
                   const SizedBox(height: 16),
-                  TextField(
+                  AuthTextField(
                     controller: _passwordCtrl,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      prefixIcon: const Icon(Icons.lock),
-                    ),
+                    labelText: 'Password',
+                    prefixIcon: Icons.lock,
                     obscureText: true,
                     enabled: !_isLoading,
                   ),
                   const SizedBox(height: 20),
-                  ElevatedButton.icon(
-                    onPressed: _isLoading ? null : _handleLogin,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    icon:
-                        _isLoading
-                            ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                            : const Icon(Icons.login),
-                    label: Text(_isLoading ? 'Signing in...' : 'Sign in'),
+                  AuthButton(
+                    onPressed: _handleLogin,
+                    isLoading: _isLoading,
+                    label: 'Sign in',
+                    loadingLabel: 'Signing in...',
+                    icon: Icons.login,
                   ),
                   TextButton(
                     onPressed: _isLoading

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shelter_ai/providers/auth_state.dart';
 import 'package:shelter_ai/services/auth_service.dart';
 import 'package:shelter_ai/widgets/form_card_container.dart';
+import 'package:shelter_ai/widgets/auth_button.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -100,79 +101,59 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
-                  TextFormField(
+                  AuthTextField(
                     controller: _nameCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Full name',
-                      prefixIcon: Icon(Icons.person),
-                    ),
+                    labelText: 'Full name',
+                    prefixIcon: Icons.person,
+                    enabled: !_isLoading,
                     validator: (v) =>
                         (v == null || v.trim().isEmpty) ? 'Required' : null,
-                    enabled: !_isLoading,
                   ),
                   const SizedBox(height: 16),
-                  TextFormField(
+                  AuthTextField(
                     controller: _emailCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                      prefixIcon: Icon(Icons.email),
-                    ),
+                    labelText: 'Email',
+                    prefixIcon: Icons.email,
                     keyboardType: TextInputType.emailAddress,
+                    enabled: !_isLoading,
                     validator: (v) {
                       if (v == null || v.trim().isEmpty) return 'Required';
-                      final emailRegex =
-                          RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
+                      final emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
                       if (!emailRegex.hasMatch(v.trim())) {
                         return 'Invalid email';
                       }
                       return null;
                     },
-                    enabled: !_isLoading,
                   ),
                   const SizedBox(height: 16),
-                  TextFormField(
+                  AuthTextField(
                     controller: _passwordCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Password',
-                      prefixIcon: Icon(Icons.lock),
-                    ),
+                    labelText: 'Password',
+                    prefixIcon: Icons.lock,
                     obscureText: true,
-                    validator: (v) =>
-                        (v == null || v.length < 6)
-                            ? 'Minimum 6 characters'
-                            : null,
                     enabled: !_isLoading,
+                    validator: (v) => (v == null || v.length < 6)
+                        ? 'Minimum 6 characters'
+                        : null,
                   ),
                   const SizedBox(height: 16),
-                  TextFormField(
+                  AuthTextField(
                     controller: _confirmCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Confirm password',
-                      prefixIcon: Icon(Icons.lock_outline),
-                    ),
+                    labelText: 'Confirm password',
+                    prefixIcon: Icons.lock_outline,
                     obscureText: true,
-                    validator: (v) =>
-                        (v == null || v != _passwordCtrl.text)
-                            ? 'Passwords do not match'
-                            : null,
                     enabled: !_isLoading,
+                    validator: (v) => (v == null || v != _passwordCtrl.text)
+                        ? 'Passwords do not match'
+                        : null,
                   ),
                   const SizedBox(height: 22),
-                  ElevatedButton.icon(
-                    onPressed: _isLoading ? null : _handleRegister,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    icon: _isLoading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.person_add_alt_1),
-                    label: Text(
-                      _isLoading ? 'Creating account...' : 'Create account',
-                    ),
+                  AuthButton(
+                    onPressed: _handleRegister,
+                    isLoading: _isLoading,
+                    label: 'Create account',
+                    loadingLabel: 'Creating account...',
+                    icon: Icons.person_add_alt_1,
                   ),
                   TextButton(
                     onPressed: _isLoading

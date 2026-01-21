@@ -7,6 +7,7 @@ import 'package:shelter_ai/screens/qr_scan_screen.dart';
 import 'package:shelter_ai/services/api_service.dart';
 import 'package:shelter_ai/widgets/custom_snackbar.dart';
 import 'package:shelter_ai/utils/refugee_constants.dart';
+import 'package:shelter_ai/widgets/refugee_form_widgets.dart';
 
 class AddRefugeeScreen extends StatefulWidget {
   const AddRefugeeScreen({super.key});
@@ -75,22 +76,30 @@ class _AddRefugeeScreenState extends State<AddRefugeeScreen> {
       _ageCtrl.text = (map['age'] ?? '').toString();
       _gender = (map['gender'] ?? 'Male').toString();
       _nationality = (map['nationality'] ?? '').toString().isEmpty
-        ? null
-        : (map['nationality'] ?? '').toString();
+          ? null
+          : (map['nationality'] ?? '').toString();
       final languagesValue = (map['languages_spoken'] ?? '').toString();
       _languages = languagesValue.isEmpty
-        ? []
-        : languagesValue.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+          ? []
+          : languagesValue
+              .split(',')
+              .map((e) => e.trim())
+              .where((e) => e.isNotEmpty)
+              .toList();
       _emailCtrl.text = (map['email'] ?? '').toString();
       _medicalCondition = (map['medical_conditions'] ?? '').toString().isEmpty
-        ? null
-        : (map['medical_conditions'] ?? '').toString();
+          ? null
+          : (map['medical_conditions'] ?? '').toString();
       _hasDisability =
           (map['has_disability'] == true || map['has_disability'] == 'true');
       final specialNeedsValue = (map['special_needs'] ?? '').toString();
       _specialNeeds = specialNeedsValue.isEmpty
-        ? []
-        : specialNeedsValue.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+          ? []
+          : specialNeedsValue
+              .split(',')
+              .map((e) => e.trim())
+              .where((e) => e.isNotEmpty)
+              .toList();
       _familyIdCtrl.text = (map['family_id'] ?? '').toString();
       _phoneNumberCtrl.text = (map['phone_number'] ?? '').toString();
       _addressCtrl.text = (map['address'] ?? '').toString();
@@ -125,20 +134,18 @@ class _AddRefugeeScreenState extends State<AddRefugeeScreen> {
       'gender': _gender,
       'nationality': _nationality,
       'languages_spoken': _languages.isNotEmpty ? _languages.join(', ') : null,
-      'phone_number':
-        _phoneNumberCtrl.text.trim().isEmpty
+      'phone_number': _phoneNumberCtrl.text.trim().isEmpty
           ? null
           : _phoneNumberCtrl.text.trim(),
       'email': _emailCtrl.text.trim().isEmpty ? null : _emailCtrl.text.trim(),
       'address':
-        _addressCtrl.text.trim().isEmpty ? null : _addressCtrl.text.trim(),
-      'family_id':
-          _familyIdCtrl.text.isEmpty
-              ? null
-              : int.tryParse(_familyIdCtrl.text.trim()),
+          _addressCtrl.text.trim().isEmpty ? null : _addressCtrl.text.trim(),
+      'family_id': _familyIdCtrl.text.isEmpty
+          ? null
+          : int.tryParse(_familyIdCtrl.text.trim()),
       'medical_conditions': _medicalCondition,
       'special_needs':
-        _specialNeeds.isNotEmpty ? _specialNeeds.join(', ') : null,
+          _specialNeeds.isNotEmpty ? _specialNeeds.join(', ') : null,
       'vulnerability_score': 0,
       'has_disability': _hasDisability,
     };
@@ -146,7 +153,7 @@ class _AddRefugeeScreenState extends State<AddRefugeeScreen> {
     try {
       // Register refugee (without automatic assignment)
       final response = await ApiService.addRefugeeWithAssignment(payload);
-      
+
       if (response == null) {
         throw Exception('El servidor no devolvió una respuesta válida.');
       }
@@ -167,7 +174,7 @@ class _AddRefugeeScreenState extends State<AddRefugeeScreen> {
 
       setState(() => _isLoading = false);
       if (!mounted) return;
-      
+
       CustomSnackBar.showError(
         context,
         'Error al registrar refugiado: $e',
@@ -180,40 +187,39 @@ class _AddRefugeeScreenState extends State<AddRefugeeScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder:
-          (context) => AlertDialog(
-            title: Row(
-              children: [
-                Icon(Icons.check_circle, color: Colors.green, size: 32),
-                SizedBox(width: 12),
-                Expanded(child: Text('Refugiado Registrado')),
-              ],
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.check_circle, color: Colors.green, size: 32),
+            SizedBox(width: 12),
+            Expanded(child: Text('Refugiado Registrado')),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${refugee.firstName} ${refugee.lastName}',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${refugee.firstName} ${refugee.lastName}',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'El refugiado ha sido registrado exitosamente en el sistema.',
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
-                ),
-              ],
+            SizedBox(height: 16),
+            Text(
+              'El refugiado ha sido registrado exitosamente en el sistema.',
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
             ),
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Close dialog
-                  Navigator.of(context).pop(true); // Return to list
-                },
-                child: Text('Aceptar'),
-              ),
-            ],
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close dialog
+              Navigator.of(context).pop(true); // Return to list
+            },
+            child: Text('Aceptar'),
           ),
+        ],
+      ),
     );
   }
 
@@ -241,7 +247,10 @@ class _AddRefugeeScreenState extends State<AddRefugeeScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.2),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .primaryContainer
+                      .withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Text(
@@ -250,20 +259,20 @@ class _AddRefugeeScreenState extends State<AddRefugeeScreen> {
                 ),
               ),
               const SizedBox(height: 18),
-              const _SectionHeader(title: 'Basic Data'),
+              const RefugeeSectionHeader(title: 'Basic Data'),
               const SizedBox(height: 10),
               TextFormField(
                 controller: _firstNameCtrl,
                 decoration: const InputDecoration(labelText: 'First Name'),
-                validator:
-                    (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Required' : null,
               ),
               const SizedBox(height: 10),
               TextFormField(
                 controller: _lastNameCtrl,
                 decoration: const InputDecoration(labelText: 'Last Name'),
-                validator:
-                    (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Required' : null,
               ),
               const SizedBox(height: 10),
               TextFormField(
@@ -289,7 +298,7 @@ class _AddRefugeeScreenState extends State<AddRefugeeScreen> {
                 decoration: const InputDecoration(labelText: 'Gender'),
               ),
               const SizedBox(height: 18),
-              const _SectionHeader(title: 'Idioma y nacionalidad'),
+              const RefugeeSectionHeader(title: 'Idioma y nacionalidad'),
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
                 value: _nationality,
@@ -302,14 +311,14 @@ class _AddRefugeeScreenState extends State<AddRefugeeScreen> {
                 ),
               ),
               const SizedBox(height: 10),
-              _MultiSelectDropdown(
+              RefugeeMultiSelectDropdown(
                 title: 'Languages (optional)',
                 items: RefugeeConstants.languages,
                 selectedItems: _languages,
                 onChanged: (selected) => setState(() => _languages = selected),
               ),
               const SizedBox(height: 18),
-              const _SectionHeader(title: 'Contact'),
+              const RefugeeSectionHeader(title: 'Contact'),
               const SizedBox(height: 10),
               TextFormField(
                 controller: _phoneNumberCtrl,
@@ -337,7 +346,7 @@ class _AddRefugeeScreenState extends State<AddRefugeeScreen> {
                 ),
               ),
               const SizedBox(height: 18),
-              const _SectionHeader(title: 'Care and companions'),
+              const RefugeeSectionHeader(title: 'Care and companions'),
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
                 value: _medicalCondition,
@@ -355,11 +364,12 @@ class _AddRefugeeScreenState extends State<AddRefugeeScreen> {
                 onChanged: (v) => setState(() => _hasDisability = v),
               ),
               const SizedBox(height: 10),
-              _MultiSelectDropdown(
+              RefugeeMultiSelectDropdown(
                 title: 'Special needs (optional)',
                 items: RefugeeConstants.specialNeedsList,
                 selectedItems: _specialNeeds,
-                onChanged: (selected) => setState(() => _specialNeeds = selected),
+                onChanged: (selected) =>
+                    setState(() => _specialNeeds = selected),
               ),
               const SizedBox(height: 10),
               Row(
@@ -377,7 +387,7 @@ class _AddRefugeeScreenState extends State<AddRefugeeScreen> {
                   IconButton(
                     icon: const Icon(Icons.info_outline),
                     tooltip: 'What is Family ID?',
-                    onPressed: _showFamilyIdInfo,
+                    onPressed: () => FamilyIdInfoModal.show(context),
                   ),
                 ],
               ),
@@ -411,251 +421,5 @@ class _AddRefugeeScreenState extends State<AddRefugeeScreen> {
       _applyQrData(jsonEncode(args));
       _argsApplied = true;
     }
-  }
-
-  void _showFamilyIdInfo() {
-    final color = Theme.of(context).colorScheme;
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(20),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(Icons.family_restroom, size: 28, color: color.primary),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Text(
-                      'What is Family ID?',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: color.primaryContainer.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text(
-                  'A Family ID links relatives in the shelter system. Use the same ID to keep family members together.',
-                  style: TextStyle(fontSize: 14, height: 1.5),
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'How to get a Family ID:',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              const _InfoBullet(
-                number: '1',
-                text: 'If this is the first registration, leave it empty.',
-              ),
-              const SizedBox(height: 8),
-              const _InfoBullet(
-                number: '2',
-                text: 'If a relative already registered, ask for their Family ID (visible on their QR).',
-              ),
-              const SizedBox(height: 8),
-              const _InfoBullet(
-                number: '3',
-                text: 'Enter that Family ID to link them.',
-              ),
-              const SizedBox(height: 8),
-              const _InfoBullet(
-                number: '4',
-                text: 'If registering together for the first time, leave it empty and request linking on arrival.',
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child: const Text('Got it'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  final String title;
-
-  const _SectionHeader({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      title,
-      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-    );
-  }
-}
-
-class _MultiSelectDropdown extends StatefulWidget {
-  final String title;
-  final List<String> items;
-  final List<String> selectedItems;
-  final Function(List<String>) onChanged;
-
-  const _MultiSelectDropdown({
-    required this.title,
-    required this.items,
-    required this.selectedItems,
-    required this.onChanged,
-  });
-
-  @override
-  State<_MultiSelectDropdown> createState() => _MultiSelectDropdownState();
-}
-
-class _MultiSelectDropdownState extends State<_MultiSelectDropdown> {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8.0),
-          child: Text(
-            widget.title,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Colors.grey,
-            ),
-          ),
-        ),
-        Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: PopupMenuButton<String>(
-            itemBuilder: (context) {
-              return widget.items.map((item) {
-                final isSelected = widget.selectedItems.contains(item);
-                return PopupMenuItem(
-                  value: item,
-                  child: Row(
-                    children: [
-                      Checkbox(
-                        value: isSelected,
-                        onChanged: (v) {
-                          setState(() {
-                            if (isSelected) {
-                              widget.selectedItems.remove(item);
-                            } else {
-                              widget.selectedItems.add(item);
-                            }
-                            widget.onChanged(widget.selectedItems);
-                          });
-                          Navigator.pop(context);
-                        },
-                      ),
-                      Expanded(child: Text(item)),
-                    ],
-                  ),
-                );
-              }).toList();
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      widget.selectedItems.isEmpty
-                          ? 'Select items...'
-                          : '${widget.selectedItems.length} selected',
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const Icon(Icons.arrow_drop_down),
-                ],
-              ),
-            ),
-          ),
-        ),
-        if (widget.selectedItems.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: Wrap(
-              spacing: 4,
-              children: widget.selectedItems
-                  .map(
-                    (item) => Chip(
-                      label: Text(item, style: const TextStyle(fontSize: 12)),
-                      onDeleted: () {
-                        setState(() {
-                          widget.selectedItems.remove(item);
-                          widget.onChanged(widget.selectedItems);
-                        });
-                      },
-                    ),
-                  )
-                  .toList(),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _InfoBullet extends StatelessWidget {
-  final String number;
-  final String text;
-
-  const _InfoBullet({
-    required this.number,
-    required this.text,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 24,
-          height: 24,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          child: Center(
-            child: Text(
-              number,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            text,
-            style: const TextStyle(fontSize: 13, height: 1.4),
-          ),
-        ),
-      ],
-    );
   }
 }

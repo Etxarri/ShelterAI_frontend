@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shelter_ai/providers/auth_state.dart';
 import 'package:shelter_ai/services/auth_service.dart';
 import 'package:shelter_ai/widgets/form_card_container.dart';
+import 'package:shelter_ai/widgets/auth_button.dart';
 
 class RefugeeLoginScreen extends StatefulWidget {
   const RefugeeLoginScreen({super.key});
@@ -28,7 +29,8 @@ class _RefugeeLoginScreenState extends State<RefugeeLoginScreen> {
 
     if (identifier.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email, phone or username and password required')),
+        const SnackBar(
+            content: Text('Email, phone or username and password required')),
       );
       return;
     }
@@ -81,7 +83,8 @@ class _RefugeeLoginScreenState extends State<RefugeeLoginScreen> {
             icon: const Icon(Icons.arrow_back),
             onPressed: _isLoading
                 ? null
-                : () => Navigator.pushReplacementNamed(context, '/refugee-landing'),
+                : () =>
+                    Navigator.pushReplacementNamed(context, '/refugee-landing'),
           ),
         ),
         body: Center(
@@ -103,47 +106,28 @@ class _RefugeeLoginScreenState extends State<RefugeeLoginScreen> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
-                  TextField(
+                  AuthTextField(
                     controller: _identifierCtrl,
-                    decoration: InputDecoration(
-                      labelText: 'Email, phone or username',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      prefixIcon: const Icon(Icons.person),
-                    ),
+                    labelText: 'Email, phone or username',
+                    prefixIcon: Icons.person,
                     keyboardType: TextInputType.text,
                     enabled: !_isLoading,
                   ),
                   const SizedBox(height: 16),
-                  TextField(
+                  AuthTextField(
                     controller: _passwordCtrl,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      prefixIcon: const Icon(Icons.lock),
-                    ),
+                    labelText: 'Password',
+                    prefixIcon: Icons.lock,
                     obscureText: true,
                     enabled: !_isLoading,
                   ),
                   const SizedBox(height: 20),
-                  ElevatedButton.icon(
-                    onPressed: _isLoading ? null : _handleLogin,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    icon: _isLoading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.login),
-                    label: Text(
-                      _isLoading ? 'Signing in...' : 'Sign in',
-                    ),
+                  AuthButton(
+                    onPressed: _handleLogin,
+                    isLoading: _isLoading,
+                    label: 'Sign in',
+                    loadingLabel: 'Signing in...',
+                    icon: Icons.login,
                   ),
                   TextButton(
                     onPressed: _isLoading
