@@ -10,6 +10,7 @@ import 'package:shelter_ai/models/refugee.dart';
 import 'package:shelter_ai/providers/auth_state.dart';
 import 'package:shelter_ai/utils/refugee_constants.dart';
 import 'package:shelter_ai/widgets/refugee_form_widgets.dart';
+import 'package:shelter_ai/widgets/common_widgets.dart';
 
 class RefugeeSelfFormQrScreen extends StatefulWidget {
   const RefugeeSelfFormQrScreen({super.key});
@@ -19,7 +20,8 @@ class RefugeeSelfFormQrScreen extends StatefulWidget {
       _RefugeeSelfFormQrScreenState();
 }
 
-class _RefugeeSelfFormQrScreenState extends State<RefugeeSelfFormQrScreen> {
+class _RefugeeSelfFormQrScreenState extends State<RefugeeSelfFormQrScreen>
+    with LogoutMixin {
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _firstNameCtrl = TextEditingController();
@@ -241,11 +243,6 @@ class _RefugeeSelfFormQrScreenState extends State<RefugeeSelfFormQrScreen> {
     );
   }
 
-  void _logout() {
-    AuthScope.of(context).logout();
-    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
-  }
-
   @override
   Widget build(BuildContext context) {
     final color = Theme.of(context).colorScheme;
@@ -253,7 +250,7 @@ class _RefugeeSelfFormQrScreenState extends State<RefugeeSelfFormQrScreen> {
       appBar: AppBar(
         title: const Text('Quick registration'),
         actions: [
-          IconButton(onPressed: _logout, icon: const Icon(Icons.logout)),
+          IconButton(onPressed: logoutRefugee, icon: const Icon(Icons.logout)),
         ],
       ),
       body: SingleChildScrollView(

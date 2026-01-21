@@ -3,6 +3,7 @@ import 'package:shelter_ai/providers/auth_state.dart';
 import 'package:shelter_ai/services/auth_service.dart';
 import 'package:shelter_ai/widgets/form_card_container.dart';
 import 'package:shelter_ai/widgets/auth_button.dart';
+import 'package:shelter_ai/utils/auth_helper.dart';
 
 class RefugeeLoginScreen extends StatefulWidget {
   const RefugeeLoginScreen({super.key});
@@ -24,51 +25,13 @@ class _RefugeeLoginScreenState extends State<RefugeeLoginScreen> {
   }
 
   Future<void> _handleLogin() async {
-    final identifier = _identifierCtrl.text.trim();
-    final password = _passwordCtrl.text.trim();
-
-    if (identifier.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Email, phone or username and password required')),
-      );
-      return;
-    }
-
-    setState(() => _isLoading = true);
-
-    try {
-      final response = await AuthService.login(
-        identifier: identifier,
-        password: password,
-      );
-
-      if (!mounted) return;
-
-      final auth = AuthScope.of(context);
-      final roleEnum =
-          response.role == 'worker' ? UserRole.worker : UserRole.refugee;
-
-      auth.login(
-        roleEnum,
-        userId: response.userId,
-        token: response.token,
-        userName: response.name,
-      );
-
-      // Navegar según rol
-      if (response.role == 'worker') {
-        Navigator.pushReplacementNamed(context, '/worker-dashboard');
-      } else {
-        Navigator.pushReplacementNamed(context, '/refugee-profile');
-      }
-    } catch (e) {
-      setState(() => _isLoading = false);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
-    }
+    await AuthHelper.handleLogin(
+      context: context,
+      identifier: _identifierCtrl.text.trim(),
+      password: _passwordCtrl.text.trim(),
+      onLoadingStart: () => setState(() => _isLoading = true),
+      onLoadingEnd: () => setState(() => _isLoading = false),
+    );
   }
 
   @override

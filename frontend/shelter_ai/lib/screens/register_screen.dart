@@ -3,6 +3,7 @@ import 'package:shelter_ai/providers/auth_state.dart';
 import 'package:shelter_ai/services/auth_service.dart';
 import 'package:shelter_ai/widgets/form_card_container.dart';
 import 'package:shelter_ai/widgets/auth_button.dart';
+import 'package:shelter_ai/utils/auth_helper.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -31,40 +32,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
-
-    try {
-      final response = await AuthService.register(
-        name: _nameCtrl.text.trim(),
-        email: _emailCtrl.text.trim(),
-        password: _passwordCtrl.text.trim(),
-      );
-
-      if (!mounted) return;
-
-      final auth = AuthScope.of(context);
-      final roleEnum =
-          response.role == 'worker' ? UserRole.worker : UserRole.refugee;
-
-      auth.login(
-        roleEnum,
-        userId: response.userId,
-        token: response.token,
-        userName: response.name,
-      );
-
-      if (response.role == 'worker') {
-        Navigator.pushReplacementNamed(context, '/worker-dashboard');
-      } else {
-        Navigator.pushReplacementNamed(context, '/refugee-profile');
-      }
-    } catch (e) {
-      setState(() => _isLoading = false);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Registration error: $e')),
-      );
-    }
+    await AuthHelper.handleWorkerRegister(
+      context: context,
+      name: _nameCtrl.text.trim(),
+      email: _emailCtrl.text.trim(),
+      password: _passwordCtrl.text.trim(),
+      onLoadingStart: () => setState(() => _isLoading = true),
+      onLoadingEnd: () => setState(() => _isLoading = false),
+    );
   }
 
   @override

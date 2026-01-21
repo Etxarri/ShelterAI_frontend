@@ -3,6 +3,7 @@ import 'package:shelter_ai/providers/auth_state.dart';
 import 'package:shelter_ai/services/auth_service.dart';
 import 'package:shelter_ai/widgets/form_card_container.dart';
 import 'package:shelter_ai/widgets/auth_button.dart';
+import 'package:shelter_ai/utils/auth_helper.dart';
 
 class RefugeeRegisterScreen extends StatefulWidget {
   const RefugeeRegisterScreen({super.key});
@@ -42,53 +43,28 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
+    final refugeeData = {
+      'firstName': _firstNameCtrl.text.trim(),
+      'lastName': _lastNameCtrl.text.trim(),
+      'username': _usernameCtrl.text.trim(),
+      'email': _emailCtrl.text.trim().isEmpty ? null : _emailCtrl.text.trim(),
+      'password': _passwordCtrl.text.trim(),
+      'phoneNumber':
+          _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
+      'address':
+          _addressCtrl.text.trim().isEmpty ? null : _addressCtrl.text.trim(),
+      'age': _ageCtrl.text.trim().isEmpty
+          ? null
+          : int.tryParse(_ageCtrl.text.trim()),
+      'gender': _gender,
+    };
 
-    try {
-      final response = await AuthService.registerRefugee(
-        firstName: _firstNameCtrl.text.trim(),
-        lastName: _lastNameCtrl.text.trim(),
-        username: _usernameCtrl.text.trim(),
-        email: _emailCtrl.text.trim().isEmpty ? null : _emailCtrl.text.trim(),
-        password: _passwordCtrl.text.trim(),
-        phoneNumber: _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
-        address: _addressCtrl.text.trim().isEmpty ? null : _addressCtrl.text.trim(),
-        age: _ageCtrl.text.trim().isEmpty ? null : int.tryParse(_ageCtrl.text.trim()),
-        gender: _gender,
-      );
-
-      if (!mounted) return;
-
-      final auth = AuthScope.of(context);
-      final roleEnum =
-          response.role == 'worker' ? UserRole.worker : UserRole.refugee;
-
-      auth.login(
-        roleEnum,
-        userId: response.userId,
-        token: response.token,
-        userName: response.name,
-        firstName: _firstNameCtrl.text.trim(),
-        lastName: _lastNameCtrl.text.trim(),
-        email: _emailCtrl.text.trim().isEmpty ? null : _emailCtrl.text.trim(),
-        phoneNumber: _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
-        address: _addressCtrl.text.trim().isEmpty ? null : _addressCtrl.text.trim(),
-        age: _ageCtrl.text.trim().isEmpty ? null : int.tryParse(_ageCtrl.text.trim()),
-        gender: _gender,
-      );
-
-      if (response.role == 'worker') {
-        Navigator.pushReplacementNamed(context, '/worker-dashboard');
-      } else {
-        Navigator.pushReplacementNamed(context, '/refugee-self-form-qr');
-      }
-    } catch (e) {
-      setState(() => _isLoading = false);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Registration error: $e')),
-      );
-    }
+    await AuthHelper.handleRefugeeRegister(
+      context: context,
+      refugeeData: refugeeData,
+      onLoadingStart: () => setState(() => _isLoading = true),
+      onLoadingEnd: () => setState(() => _isLoading = false),
+    );
   }
 
   String? _validateEmail(String? value) {
@@ -123,7 +99,8 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: _isLoading
               ? null
-              : () => Navigator.pushReplacementNamed(context, '/refugee-landing'),
+              : () =>
+                  Navigator.pushReplacementNamed(context, '/refugee-landing'),
         ),
       ),
       body: Center(
@@ -203,7 +180,9 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
                       DropdownMenuItem(value: 'Female', child: Text('Female')),
                       DropdownMenuItem(value: 'Other', child: Text('Other')),
                     ],
-                    onChanged: _isLoading ? null : (v) => setState(() => _gender = v ?? 'Male'),
+                    onChanged: _isLoading
+                        ? null
+                        : (v) => setState(() => _gender = v ?? 'Male'),
                     decoration: const InputDecoration(
                       labelText: 'Gender',
                       prefixIcon: Icon(Icons.wc),
@@ -276,10 +255,9 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
                       border: OutlineInputBorder(),
                     ),
                     obscureText: true,
-                    validator: (v) =>
-                        (v == null || v.length < 6)
-                            ? 'Mínimo 6 caracteres'
-                            : null,
+                    validator: (v) => (v == null || v.length < 6)
+                        ? 'Mínimo 6 caracteres'
+                        : null,
                     enabled: !_isLoading,
                   ),
                   const SizedBox(height: 12),
@@ -291,10 +269,9 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
                       border: OutlineInputBorder(),
                     ),
                     obscureText: true,
-                    validator: (v) =>
-                        (v == null || v != _passwordCtrl.text)
-                            ? 'Las contraseñas no coinciden'
-                            : null,
+                    validator: (v) => (v == null || v != _passwordCtrl.text)
+                        ? 'Las contraseñas no coinciden'
+                        : null,
                     enabled: !_isLoading,
                   ),
                   const SizedBox(height: 24),
