@@ -214,7 +214,7 @@ class _RefugeeSelfFormQrScreenState extends State<RefugeeSelfFormQrScreen>
                           await _downloadQrPdf(jsonString);
                         } catch (e) {
                           if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
+                            ScaffoldMessenger.of(dialogContext).showSnackBar(
                               SnackBar(
                                 content: Text('Could not download PDF: $e'),
                               ),
