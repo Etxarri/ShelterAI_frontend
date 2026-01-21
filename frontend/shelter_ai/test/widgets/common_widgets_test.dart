@@ -388,7 +388,7 @@ void main() {
       );
 
       final valueText =
-          tester.widget<Text>(find.text('999').first) as Text;
+          tester.widget<Text>(find.text('999').first);
       expect(valueText.style?.fontSize, 20);
       expect(valueText.style?.fontWeight, FontWeight.bold);
     });
