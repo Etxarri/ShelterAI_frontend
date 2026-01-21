@@ -68,14 +68,13 @@ class _RefugeeMultiSelectDropdownState
                       Checkbox(
                         value: isSelected,
                         onChanged: (v) {
-                          setState(() {
-                            if (isSelected) {
-                              widget.selectedItems.remove(item);
-                            } else {
-                              widget.selectedItems.add(item);
-                            }
-                            widget.onChanged(widget.selectedItems);
-                          });
+                          final newList = List<String>.from(widget.selectedItems);
+                          if (isSelected) {
+                            newList.remove(item);
+                          } else {
+                            newList.add(item);
+                          }
+                          widget.onChanged(newList);
                           Navigator.pop(context);
                         },
                       ),

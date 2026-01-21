@@ -135,7 +135,7 @@ class RefugeeFormFields extends StatelessWidget {
           decoration: const InputDecoration(labelText: 'Gender'),
         ),
         const SizedBox(height: 18),
-        const RefugeeSectionHeader(title: 'Idioma y nacionalidad'),
+        const RefugeeSectionHeader(title: 'Language and nationality'),
         const SizedBox(height: 10),
         DropdownButtonFormField<String>(
           value: data.nationality,

@@ -51,7 +51,7 @@ void main() {
 
       expect(find.text('Add Refugee'), findsOneWidget);
       expect(find.text('Basic Data'), findsOneWidget);
-      expect(find.text('Idioma y nacionalidad'), findsOneWidget);
+      expect(find.text('Language and nationality'), findsOneWidget);
       expect(find.text('Contact'), findsOneWidget);
       expect(find.text('Care and companions'), findsOneWidget);
 

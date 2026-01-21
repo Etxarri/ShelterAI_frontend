@@ -75,7 +75,7 @@ void main() {
       expect(_logoutButton(), findsOneWidget);
       expect(_generateButton(), findsOneWidget);
 
-      expect(find.text('Your basic data'), findsOneWidget);
+      expect(find.text('Basic Data'), findsOneWidget);
       expect(find.text('Language and nationality'), findsOneWidget);
       expect(find.text('Care and companions'), findsOneWidget);
     });
