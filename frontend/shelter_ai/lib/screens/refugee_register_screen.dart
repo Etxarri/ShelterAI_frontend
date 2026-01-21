@@ -4,6 +4,7 @@ import 'package:shelter_ai/services/auth_service.dart';
 import 'package:shelter_ai/widgets/form_card_container.dart';
 import 'package:shelter_ai/widgets/auth_button.dart';
 import 'package:shelter_ai/utils/auth_helper.dart';
+import 'package:shelter_ai/utils/form_validators.dart';
 
 class RefugeeRegisterScreen extends StatefulWidget {
   const RefugeeRegisterScreen({super.key});
@@ -67,28 +68,6 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
     );
   }
 
-  String? _validateEmail(String? value) {
-    if (value == null || value.isEmpty) {
-      return null; // Email is optional
-    }
-    final emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
-    if (!emailRegex.hasMatch(value.trim())) {
-      return 'Email no válido';
-    }
-    return null;
-  }
-
-  String? _validatePhone(String? value) {
-    if (value == null || value.isEmpty) {
-      return null; // Teléfono es opcional
-    }
-    // Validación básica de teléfono
-    if (value.trim().length < 6) {
-      return 'Teléfono debe tener al menos 6 dígitos';
-    }
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     final color = Theme.of(context).colorScheme;
@@ -136,8 +115,7 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
                       prefixIcon: Icon(Icons.person),
                       border: OutlineInputBorder(),
                     ),
-                    validator: (v) =>
-                        (v == null || v.trim().isEmpty) ? 'Requerido' : null,
+                    validator: FormValidators.requerido,
                     enabled: !_isLoading,
                   ),
                   const SizedBox(height: 12),
@@ -148,8 +126,7 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
                       prefixIcon: Icon(Icons.person_outline),
                       border: OutlineInputBorder(),
                     ),
-                    validator: (v) =>
-                        (v == null || v.trim().isEmpty) ? 'Requerido' : null,
+                    validator: FormValidators.requerido,
                     enabled: !_isLoading,
                   ),
                   const SizedBox(height: 12),
@@ -161,15 +138,7 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
                       border: OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.number,
-                    validator: (v) {
-                      if (v != null && v.trim().isNotEmpty) {
-                        final age = int.tryParse(v.trim());
-                        if (age == null || age < 0 || age > 150) {
-                          return 'Edad no válida';
-                        }
-                      }
-                      return null;
-                    },
+                    validator: FormValidators.ageEs,
                     enabled: !_isLoading,
                   ),
                   const SizedBox(height: 12),
@@ -203,7 +172,7 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
                       border: OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.emailAddress,
-                    validator: _validateEmail,
+                    validator: FormValidators.emailEs,
                     enabled: !_isLoading,
                   ),
                   const SizedBox(height: 12),
@@ -216,7 +185,7 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
                       hintText: 'e.g: +34 123456789',
                     ),
                     keyboardType: TextInputType.phone,
-                    validator: _validatePhone,
+                    validator: FormValidators.phoneEs,
                     enabled: !_isLoading,
                   ),
                   const SizedBox(height: 12),
@@ -242,8 +211,7 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
                       prefixIcon: Icon(Icons.badge),
                       border: OutlineInputBorder(),
                     ),
-                    validator: (v) =>
-                        (v == null || v.trim().isEmpty) ? 'Requerido' : null,
+                    validator: FormValidators.requerido,
                     enabled: !_isLoading,
                   ),
                   const SizedBox(height: 12),
@@ -255,9 +223,7 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
                       border: OutlineInputBorder(),
                     ),
                     obscureText: true,
-                    validator: (v) => (v == null || v.length < 6)
-                        ? 'Mínimo 6 caracteres'
-                        : null,
+                    validator: FormValidators.passwordEs,
                     enabled: !_isLoading,
                   ),
                   const SizedBox(height: 12),
@@ -269,9 +235,8 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
                       border: OutlineInputBorder(),
                     ),
                     obscureText: true,
-                    validator: (v) => (v == null || v != _passwordCtrl.text)
-                        ? 'Las contraseñas no coinciden'
-                        : null,
+                    validator: (v) =>
+                        FormValidators.confirmPasswordEs(v, _passwordCtrl.text),
                     enabled: !_isLoading,
                   ),
                   const SizedBox(height: 24),
