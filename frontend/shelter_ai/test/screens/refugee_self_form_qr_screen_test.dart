@@ -18,6 +18,7 @@ void main() {
     return MaterialApp(
       routes: {
         '/login': (_) => const Scaffold(body: Text('LOGIN_SCREEN')),
+        '/refugee-login': (_) => const Scaffold(body: Text('LOGIN_SCREEN')),
       },
       home: AuthScope(
         state: AuthState(),
