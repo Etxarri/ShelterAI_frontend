@@ -5,6 +5,7 @@ import 'package:shelter_ai/widgets/form_card_container.dart';
 import 'package:shelter_ai/widgets/auth_button.dart';
 import 'package:shelter_ai/utils/auth_helper.dart';
 import 'package:shelter_ai/utils/form_validators.dart';
+import 'package:shelter_ai/mixins/auth_form_mixin.dart';
 
 class RefugeeRegisterScreen extends StatefulWidget {
   const RefugeeRegisterScreen({super.key});
@@ -13,7 +14,8 @@ class RefugeeRegisterScreen extends StatefulWidget {
   State<RefugeeRegisterScreen> createState() => _RefugeeRegisterScreenState();
 }
 
-class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
+class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen>
+    with AuthFormMixin {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _firstNameCtrl = TextEditingController();
   final TextEditingController _lastNameCtrl = TextEditingController();
@@ -25,7 +27,6 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
   final TextEditingController _passwordCtrl = TextEditingController();
   final TextEditingController _confirmCtrl = TextEditingController();
   String _gender = 'Male';
-  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -63,8 +64,8 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
     await AuthHelper.handleRefugeeRegister(
       context: context,
       refugeeData: refugeeData,
-      onLoadingStart: () => setState(() => _isLoading = true),
-      onLoadingEnd: () => setState(() => _isLoading = false),
+      onLoadingStart: startLoading,
+      onLoadingEnd: stopLoading,
     );
   }
 
@@ -76,7 +77,7 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
         title: const Text('Register as Refugee'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: _isLoading
+          onPressed: isLoading
               ? null
               : () =>
                   Navigator.pushReplacementNamed(context, '/refugee-landing'),
@@ -116,7 +117,7 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
                       border: OutlineInputBorder(),
                     ),
                     validator: FormValidators.requerido,
-                    enabled: !_isLoading,
+                    enabled: !isLoading,
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
@@ -127,7 +128,7 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
                       border: OutlineInputBorder(),
                     ),
                     validator: FormValidators.requerido,
-                    enabled: !_isLoading,
+                    enabled: !isLoading,
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
@@ -139,7 +140,7 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
                     ),
                     keyboardType: TextInputType.number,
                     validator: FormValidators.ageEs,
-                    enabled: !_isLoading,
+                    enabled: !isLoading,
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
@@ -149,7 +150,7 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
                       DropdownMenuItem(value: 'Female', child: Text('Female')),
                       DropdownMenuItem(value: 'Other', child: Text('Other')),
                     ],
-                    onChanged: _isLoading
+                    onChanged: isLoading
                         ? null
                         : (v) => setState(() => _gender = v ?? 'Male'),
                     decoration: const InputDecoration(
@@ -173,7 +174,7 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
                     ),
                     keyboardType: TextInputType.emailAddress,
                     validator: FormValidators.emailEs,
-                    enabled: !_isLoading,
+                    enabled: !isLoading,
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
@@ -186,7 +187,7 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
                     ),
                     keyboardType: TextInputType.phone,
                     validator: FormValidators.phoneEs,
-                    enabled: !_isLoading,
+                    enabled: !isLoading,
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
@@ -196,7 +197,7 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
                       prefixIcon: Icon(Icons.location_on),
                       border: OutlineInputBorder(),
                     ),
-                    enabled: !_isLoading,
+                    enabled: !isLoading,
                   ),
                   const SizedBox(height: 20),
                   const Text(
@@ -212,7 +213,7 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
                       border: OutlineInputBorder(),
                     ),
                     validator: FormValidators.requerido,
-                    enabled: !_isLoading,
+                    enabled: !isLoading,
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
@@ -224,7 +225,7 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
                     ),
                     obscureText: true,
                     validator: FormValidators.passwordEs,
-                    enabled: !_isLoading,
+                    enabled: !isLoading,
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
@@ -237,15 +238,15 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
                     obscureText: true,
                     validator: (v) =>
                         FormValidators.confirmPasswordEs(v, _passwordCtrl.text),
-                    enabled: !_isLoading,
+                    enabled: !isLoading,
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton.icon(
-                    onPressed: _isLoading ? null : _handleRegister,
+                    onPressed: isLoading ? null : _handleRegister,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
-                    icon: _isLoading
+                    icon: isLoading
                         ? const SizedBox(
                             width: 20,
                             height: 20,
@@ -253,11 +254,11 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
                           )
                         : const Icon(Icons.person_add),
                     label: Text(
-                      _isLoading ? 'Registering...' : 'Register',
+                      isLoading ? 'Registering...' : 'Register',
                     ),
                   ),
                   TextButton(
-                    onPressed: _isLoading
+                    onPressed: isLoading
                         ? null
                         : () => Navigator.pushReplacementNamed(
                               context,

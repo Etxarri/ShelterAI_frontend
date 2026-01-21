@@ -8,8 +8,7 @@ import 'package:printing/printing.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:shelter_ai/models/refugee.dart';
 import 'package:shelter_ai/providers/auth_state.dart';
-import 'package:shelter_ai/utils/refugee_constants.dart';
-import 'package:shelter_ai/widgets/refugee_form_widgets.dart';
+import 'package:shelter_ai/widgets/refugee_form_fields.dart';
 import 'package:shelter_ai/widgets/common_widgets.dart';
 
 class RefugeeSelfFormQrScreen extends StatefulWidget {
@@ -24,29 +23,27 @@ class _RefugeeSelfFormQrScreenState extends State<RefugeeSelfFormQrScreen>
     with LogoutMixin {
   final _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _firstNameCtrl = TextEditingController();
-  final TextEditingController _lastNameCtrl = TextEditingController();
-  final TextEditingController _ageCtrl = TextEditingController();
-  String _gender = 'Male';
-  String? _nationality;
-  List<String> _languages = [];
-  String? _medicalCondition;
-  bool _hasDisability = false;
-  List<String> _specialNeeds = [];
-  final TextEditingController _familyIdCtrl = TextEditingController();
-  final TextEditingController _phoneNumberCtrl = TextEditingController();
-  final TextEditingController _emailCtrl = TextEditingController();
-  final TextEditingController _addressCtrl = TextEditingController();
+  late final RefugeeFormControllers _controllers;
+  late RefugeeFormData _formData;
+
+  @override
+  void initState() {
+    super.initState();
+    _controllers = RefugeeFormControllers(
+      firstNameCtrl: TextEditingController(),
+      lastNameCtrl: TextEditingController(),
+      ageCtrl: TextEditingController(),
+      familyIdCtrl: TextEditingController(),
+      phoneNumberCtrl: TextEditingController(),
+      emailCtrl: TextEditingController(),
+      addressCtrl: TextEditingController(),
+    );
+    _formData = RefugeeFormData();
+  }
 
   @override
   void dispose() {
-    _firstNameCtrl.dispose();
-    _lastNameCtrl.dispose();
-    _ageCtrl.dispose();
-    _familyIdCtrl.dispose();
-    _phoneNumberCtrl.dispose();
-    _emailCtrl.dispose();
-    _addressCtrl.dispose();
+    _controllers.dispose();
     super.dispose();
   }
 
@@ -61,29 +58,30 @@ class _RefugeeSelfFormQrScreenState extends State<RefugeeSelfFormQrScreen>
     final auth = AuthScope.of(context);
 
     if (auth.firstName.isNotEmpty) {
-      _firstNameCtrl.text = auth.firstName;
+      _controllers.firstNameCtrl.text = auth.firstName;
     }
     if (auth.lastName.isNotEmpty) {
-      _lastNameCtrl.text = auth.lastName;
+      _controllers.lastNameCtrl.text = auth.lastName;
     }
     if (auth.age != null && auth.age! > 0) {
-      _ageCtrl.text = auth.age.toString();
-    }
-    if (auth.gender.isNotEmpty) {
-      _gender = auth.gender;
-    }
-    if (auth.nationality != null && auth.nationality!.isNotEmpty) {
-      _nationality = auth.nationality;
+      _controllers.ageCtrl.text = auth.age.toString();
     }
     if (auth.email != null && auth.email!.isNotEmpty) {
-      _emailCtrl.text = auth.email!;
+      _controllers.emailCtrl.text = auth.email!;
     }
     if (auth.phoneNumber != null && auth.phoneNumber!.isNotEmpty) {
-      _phoneNumberCtrl.text = auth.phoneNumber!;
+      _controllers.phoneNumberCtrl.text = auth.phoneNumber!;
     }
     if (auth.address != null && auth.address!.isNotEmpty) {
-      _addressCtrl.text = auth.address!;
+      _controllers.addressCtrl.text = auth.address!;
     }
+
+    setState(() {
+      _formData = RefugeeFormData(
+        gender: auth.gender.isNotEmpty ? auth.gender : 'Male',
+        nationality: auth.nationality,
+      );
+    });
   }
 
   Future<Uint8List> _buildQrImageBytes(String data) async {
@@ -154,25 +152,32 @@ class _RefugeeSelfFormQrScreenState extends State<RefugeeSelfFormQrScreen>
     if (!_formKey.currentState!.validate()) return;
 
     final refugee = Refugee(
-      firstName: _firstNameCtrl.text.trim(),
-      lastName: _lastNameCtrl.text.trim(),
-      age: int.tryParse(_ageCtrl.text.trim()) ?? 0,
-      gender: _gender,
-      nationality: _nationality,
-      languagesSpoken: _languages.isNotEmpty ? _languages.join(', ') : null,
-      medicalConditions: _medicalCondition,
-      hasDisability: _hasDisability,
+      firstName: _controllers.firstNameCtrl.text.trim(),
+      lastName: _controllers.lastNameCtrl.text.trim(),
+      age: int.tryParse(_controllers.ageCtrl.text.trim()) ?? 0,
+      gender: _formData.gender,
+      nationality: _formData.nationality,
+      languagesSpoken: _formData.languages.isNotEmpty
+          ? _formData.languages.join(', ')
+          : null,
+      medicalConditions: _formData.medicalCondition,
+      hasDisability: _formData.hasDisability,
       vulnerabilityScore: 0.0,
-      specialNeeds: _specialNeeds.isNotEmpty ? _specialNeeds.join(', ') : null,
-      familyId: _familyIdCtrl.text.trim().isEmpty
+      specialNeeds: _formData.specialNeeds.isNotEmpty
+          ? _formData.specialNeeds.join(', ')
+          : null,
+      familyId: _controllers.familyIdCtrl.text.trim().isEmpty
           ? null
-          : int.tryParse(_familyIdCtrl.text.trim()),
-      phoneNumber: _phoneNumberCtrl.text.trim().isEmpty
+          : int.tryParse(_controllers.familyIdCtrl.text.trim()),
+      phoneNumber: _controllers.phoneNumberCtrl.text.trim().isEmpty
           ? null
-          : _phoneNumberCtrl.text.trim(),
-      email: _emailCtrl.text.trim().isEmpty ? null : _emailCtrl.text.trim(),
-      address:
-          _addressCtrl.text.trim().isEmpty ? null : _addressCtrl.text.trim(),
+          : _controllers.phoneNumberCtrl.text.trim(),
+      email: _controllers.emailCtrl.text.trim().isEmpty
+          ? null
+          : _controllers.emailCtrl.text.trim(),
+      address: _controllers.addressCtrl.text.trim().isEmpty
+          ? null
+          : _controllers.addressCtrl.text.trim(),
     );
 
     final jsonString = jsonEncode(refugee.toJson());
@@ -260,152 +265,13 @@ class _RefugeeSelfFormQrScreenState extends State<RefugeeSelfFormQrScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: color.primaryContainer.withOpacity(0.35),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Text(
-                  'We only ask for what is necessary to locate you safely. You can come back later; your QR will keep working.',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-              ),
-              const SizedBox(height: 18),
-              const RefugeeSectionHeader(title: 'Your basic data'),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _firstNameCtrl,
-                decoration: const InputDecoration(labelText: 'First Name'),
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Required' : null,
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _lastNameCtrl,
-                decoration: const InputDecoration(labelText: 'Last Name'),
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Required' : null,
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _ageCtrl,
-                decoration: const InputDecoration(labelText: 'Age'),
-                keyboardType: TextInputType.number,
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'Required';
-                  final n = int.tryParse(v);
-                  if (n == null || n < 0) return 'Invalid age';
-                  return null;
-                },
-              ),
-              const SizedBox(height: 10),
-              DropdownButtonFormField<String>(
-                value: _gender,
-                items: const [
-                  DropdownMenuItem(
-                    value: 'Male',
-                    child: Text('Male'),
-                  ),
-                  DropdownMenuItem(value: 'Female', child: Text('Female')),
-                  DropdownMenuItem(value: 'Other', child: Text('Other')),
-                ],
-                onChanged: (v) => setState(() => _gender = v ?? 'Male'),
-                decoration: const InputDecoration(labelText: 'Gender'),
-              ),
-              const SizedBox(height: 18),
-              const RefugeeSectionHeader(title: 'Language and nationality'),
-              const SizedBox(height: 10),
-              DropdownButtonFormField<String>(
-                value: _nationality,
-                items: RefugeeConstants.nationalities.map((n) {
-                  return DropdownMenuItem(value: n, child: Text(n));
-                }).toList(),
-                onChanged: (v) => setState(() => _nationality = v),
-                decoration: const InputDecoration(
-                  labelText: 'Nationality (optional)',
-                ),
-              ),
-              const SizedBox(height: 10),
-              RefugeeMultiSelectDropdown(
-                title: 'Languages (optional)',
-                items: RefugeeConstants.languages,
-                selectedItems: _languages,
-                onChanged: (selected) => setState(() => _languages = selected),
-              ),
-              const SizedBox(height: 18),
-              const RefugeeSectionHeader(title: 'Contact information'),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _phoneNumberCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Phone number (optional)',
-                  helperText: 'E.g: +34 123456789',
-                ),
-                keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _emailCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Email (optional)',
-                  helperText: 'E.g: your@email.com',
-                ),
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _addressCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Address (optional)',
-                  helperText: 'Your current address',
-                ),
-              ),
-              const SizedBox(height: 18),
-              const RefugeeSectionHeader(title: 'Care and companions'),
-              const SizedBox(height: 10),
-              DropdownButtonFormField<String>(
-                value: _medicalCondition,
-                items: RefugeeConstants.medicalConditions.map((m) {
-                  return DropdownMenuItem(value: m, child: Text(m));
-                }).toList(),
-                onChanged: (v) => setState(() => _medicalCondition = v),
-                decoration: const InputDecoration(
-                  labelText: 'Medical conditions (optional)',
-                ),
-              ),
-              SwitchListTile(
-                title: const Text('I have a disability or reduced mobility'),
-                value: _hasDisability,
-                onChanged: (v) => setState(() => _hasDisability = v),
-              ),
-              const SizedBox(height: 10),
-              RefugeeMultiSelectDropdown(
-                title: 'Special needs (optional)',
-                items: RefugeeConstants.specialNeedsList,
-                selectedItems: _specialNeeds,
-                onChanged: (selected) =>
-                    setState(() => _specialNeeds = selected),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _familyIdCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'Family ID (if you have one)',
-                      ),
-                      keyboardType: TextInputType.number,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(Icons.info_outline),
-                    tooltip: 'What is Family ID?',
-                    onPressed: () => FamilyIdInfoModal.show(context),
-                  ),
-                ],
+              RefugeeFormFields(
+                controllers: _controllers,
+                data: _formData,
+                onDataChanged: (newData) => setState(() => _formData = newData),
+                instructionText:
+                    'We only ask for what is necessary to locate you safely. You can come back later; your QR will keep working.',
+                showFamilyInfo: true,
               ),
               const SizedBox(height: 20),
               ElevatedButton.icon(

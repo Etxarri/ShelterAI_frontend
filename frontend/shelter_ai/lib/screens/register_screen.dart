@@ -5,6 +5,7 @@ import 'package:shelter_ai/widgets/auth_button.dart';
 import 'package:shelter_ai/widgets/auth_screen_scaffold.dart';
 import 'package:shelter_ai/utils/auth_helper.dart';
 import 'package:shelter_ai/utils/form_validators.dart';
+import 'package:shelter_ai/mixins/auth_form_mixin.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -13,33 +14,20 @@ class RegisterScreen extends StatefulWidget {
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends State<RegisterScreen>
+    with AuthFormMixin, RegisterFormControllers {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameCtrl = TextEditingController();
-  final TextEditingController _emailCtrl = TextEditingController();
-  final TextEditingController _passwordCtrl = TextEditingController();
-  final TextEditingController _confirmCtrl = TextEditingController();
-  bool _isLoading = false;
-
-  @override
-  void dispose() {
-    _nameCtrl.dispose();
-    _emailCtrl.dispose();
-    _passwordCtrl.dispose();
-    _confirmCtrl.dispose();
-    super.dispose();
-  }
 
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
     await AuthHelper.handleWorkerRegister(
       context: context,
-      name: _nameCtrl.text.trim(),
-      email: _emailCtrl.text.trim(),
-      password: _passwordCtrl.text.trim(),
-      onLoadingStart: () => setState(() => _isLoading = true),
-      onLoadingEnd: () => setState(() => _isLoading = false),
+      name: name,
+      email: email,
+      password: password,
+      onLoadingStart: startLoading,
+      onLoadingEnd: stopLoading,
     );
   }
 
@@ -49,7 +37,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       title: 'Create account',
       showAppBar: true,
       onBackPressed: () => Navigator.pushReplacementNamed(context, '/login'),
-      isLoading: _isLoading,
+      isLoading: isLoading,
       child: Form(
         key: _formKey,
         child: Column(
@@ -61,44 +49,43 @@ class _RegisterScreenState extends State<RegisterScreen> {
               subtitle: 'Use an organization email to maintain security.',
             ),
             AuthTextField(
-              controller: _nameCtrl,
+              controller: nameController,
               labelText: 'Full name',
               prefixIcon: Icons.person,
-              enabled: !_isLoading,
+              enabled: !isLoading,
               validator: FormValidators.required,
             ),
             const SizedBox(height: 16),
             AuthTextField(
-              controller: _emailCtrl,
+              controller: emailController,
               labelText: 'Email',
               prefixIcon: Icons.email,
               keyboardType: TextInputType.emailAddress,
-              enabled: !_isLoading,
+              enabled: !isLoading,
               validator: FormValidators.email,
             ),
             const SizedBox(height: 16),
             AuthTextField(
-              controller: _passwordCtrl,
+              controller: passwordController,
               labelText: 'Password',
               prefixIcon: Icons.lock,
               obscureText: true,
-              enabled: !_isLoading,
+              enabled: !isLoading,
               validator: FormValidators.password,
             ),
             const SizedBox(height: 16),
             AuthTextField(
-              controller: _confirmCtrl,
+              controller: confirmPasswordController,
               labelText: 'Confirm password',
               prefixIcon: Icons.lock_outline,
               obscureText: true,
-              enabled: !_isLoading,
-              validator: (v) =>
-                  FormValidators.confirmPassword(v, _passwordCtrl.text),
+              enabled: !isLoading,
+              validator: (v) => FormValidators.confirmPassword(v, password),
             ),
             const SizedBox(height: 22),
             AuthButton(
               onPressed: _handleRegister,
-              isLoading: _isLoading,
+              isLoading: isLoading,
               label: 'Create account',
               loadingLabel: 'Creating account...',
               icon: Icons.person_add_alt_1,
@@ -106,7 +93,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             AuthNavigationButton(
               text: 'I already have an account',
               route: '/login',
-              isLoading: _isLoading,
+              isLoading: isLoading,
               isPrimary: true,
             ),
           ],

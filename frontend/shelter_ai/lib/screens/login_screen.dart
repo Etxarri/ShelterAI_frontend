@@ -5,6 +5,7 @@ import 'package:shelter_ai/services/auth_service.dart';
 import 'package:shelter_ai/widgets/auth_button.dart';
 import 'package:shelter_ai/widgets/auth_screen_scaffold.dart';
 import 'package:shelter_ai/utils/auth_helper.dart';
+import 'package:shelter_ai/mixins/auth_form_mixin.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,32 +14,22 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _identifierCtrl = TextEditingController();
-  final TextEditingController _passwordCtrl = TextEditingController();
-  bool _isLoading = false;
-
-  @override
-  void dispose() {
-    _identifierCtrl.dispose();
-    _passwordCtrl.dispose();
-    super.dispose();
-  }
-
+class _LoginScreenState extends State<LoginScreen>
+    with AuthFormMixin, LoginFormControllers {
   Future<void> _handleLogin() async {
     await AuthHelper.handleLogin(
       context: context,
-      identifier: _identifierCtrl.text.trim(),
-      password: _passwordCtrl.text.trim(),
-      onLoadingStart: () => setState(() => _isLoading = true),
-      onLoadingEnd: () => setState(() => _isLoading = false),
+      identifier: identifier,
+      password: password,
+      onLoadingStart: startLoading,
+      onLoadingEnd: stopLoading,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return AuthScreenScaffold(
-      isLoading: _isLoading,
+      isLoading: isLoading,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -48,24 +39,24 @@ class _LoginScreenState extends State<LoginScreen> {
             subtitle: 'Receive, assign and prioritize securely.',
           ),
           AuthTextField(
-            controller: _identifierCtrl,
+            controller: identifierController,
             labelText: 'Email, phone or username',
             prefixIcon: Icons.person,
             keyboardType: TextInputType.text,
-            enabled: !_isLoading,
+            enabled: !isLoading,
           ),
           const SizedBox(height: 16),
           AuthTextField(
-            controller: _passwordCtrl,
+            controller: passwordController,
             labelText: 'Password',
             prefixIcon: Icons.lock,
             obscureText: true,
-            enabled: !_isLoading,
+            enabled: !isLoading,
           ),
           const SizedBox(height: 20),
           AuthButton(
             onPressed: _handleLogin,
-            isLoading: _isLoading,
+            isLoading: isLoading,
             label: 'Sign in',
             loadingLabel: 'Signing in...',
             icon: Icons.login,
@@ -73,13 +64,13 @@ class _LoginScreenState extends State<LoginScreen> {
           AuthNavigationButton(
             text: 'First time? Create account',
             route: '/register',
-            isLoading: _isLoading,
+            isLoading: isLoading,
             isPrimary: true,
           ),
           AuthNavigationButton(
             text: 'Back to home',
             route: '/welcome',
-            isLoading: _isLoading,
+            isLoading: isLoading,
           ),
         ],
       ),
