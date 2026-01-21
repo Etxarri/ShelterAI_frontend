@@ -218,15 +218,17 @@ class _RefugeeSelfFormQrScreenState extends State<RefugeeSelfFormQrScreen>
                         try {
                           await _downloadQrPdf(jsonString);
                         } catch (e) {
-                          if (mounted) {
-                            ScaffoldMessenger.of(dialogContext).showSnackBar(
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text('Could not download PDF: $e'),
                               ),
                             );
                           }
                         } finally {
-                          setDialogState(() => isSaving = false);
+                          if (context.mounted) {
+                            setDialogState(() => isSaving = false);
+                          }
                         }
                       },
                 child: isSaving
@@ -238,7 +240,13 @@ class _RefugeeSelfFormQrScreenState extends State<RefugeeSelfFormQrScreen>
                     : const Text('Download PDF'),
               ),
               TextButton(
-                onPressed: isSaving ? null : () => Navigator.pop(dialogContext),
+                onPressed: isSaving
+                    ? null
+                    : () {
+                        if (context.mounted) {
+                          Navigator.pop(context);
+                        }
+                      },
                 child: const Text('Close'),
               ),
             ],
