@@ -6,6 +6,7 @@ import 'package:shelter_ai/providers/auth_state.dart';
 import 'package:shelter_ai/screens/qr_scan_screen.dart';
 import 'package:shelter_ai/services/api_service.dart';
 import 'package:shelter_ai/widgets/custom_snackbar.dart';
+import 'package:shelter_ai/utils/refugee_constants.dart';
 
 class AddRefugeeScreen extends StatefulWidget {
   const AddRefugeeScreen({super.key});
@@ -32,88 +33,6 @@ class _AddRefugeeScreenState extends State<AddRefugeeScreen> {
   final TextEditingController _addressCtrl = TextEditingController();
 
   bool _argsApplied = false;
-
-  // Predefined lists reused from refugee self-registration form
-  static const List<String> nationalities = [
-    'Afghan',
-    'Syrian',
-    'Palestinian',
-    'Somali',
-    'Sudanese',
-    'Turkish',
-    'Indian',
-    'Pakistani',
-    'Vietnamese',
-    'Congolese',
-    'Eritrean',
-    'Ethiopian',
-    'Iraqi',
-    'Iranian',
-    'Lebanese',
-    'Yemeni',
-    'Ukrainian',
-    'Venezuelan',
-    'Haitian',
-    'Other'
-  ];
-
-  static const List<String> languages = [
-    'Arabic',
-    'Spanish',
-    'English',
-    'French',
-    'Chinese',
-    'Russian',
-    'Hindi',
-    'Bengali',
-    'Portuguese',
-    'German',
-    'Japanese',
-    'Turkish',
-    'Pashto',
-    'Kurdish',
-    'Dari',
-    'Swahili',
-    'Vietnamese',
-    'Somali',
-    'Ukrainian',
-    'Other'
-  ];
-
-  static const List<String> medicalConditions = [
-    'Asthma',
-    'Diabetes',
-    'Hypertension',
-    'Heart disease',
-    'Arthritis',
-    'Cancer',
-    'HIV/AIDS',
-    'Tuberculosis',
-    'Pregnancy',
-    'Mental health condition',
-    'Physical disability',
-    'Visual impairment',
-    'Hearing impairment',
-    'Chronic pain',
-    'Medication dependent',
-    'Allergies',
-    'Other'
-  ];
-
-  static const List<String> specialNeedsList = [
-    'Psychological support',
-    'Family space',
-    'Privacy',
-    'Wheelchair accessibility',
-    'Childcare',
-    'Medical supervision',
-    'Language interpreter',
-    'Legal assistance',
-    'Educational support',
-    'Religious accommodation',
-    'Dietary restrictions',
-    'Other'
-  ];
 
   @override
   void dispose() {
@@ -374,7 +293,7 @@ class _AddRefugeeScreenState extends State<AddRefugeeScreen> {
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
                 value: _nationality,
-                items: nationalities
+                items: RefugeeConstants.nationalities
                     .map((n) => DropdownMenuItem(value: n, child: Text(n)))
                     .toList(),
                 onChanged: (v) => setState(() => _nationality = v),
@@ -385,7 +304,7 @@ class _AddRefugeeScreenState extends State<AddRefugeeScreen> {
               const SizedBox(height: 10),
               _MultiSelectDropdown(
                 title: 'Languages (optional)',
-                items: languages,
+                items: RefugeeConstants.languages,
                 selectedItems: _languages,
                 onChanged: (selected) => setState(() => _languages = selected),
               ),
@@ -422,7 +341,7 @@ class _AddRefugeeScreenState extends State<AddRefugeeScreen> {
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
                 value: _medicalCondition,
-                items: medicalConditions
+                items: RefugeeConstants.medicalConditions
                     .map((m) => DropdownMenuItem(value: m, child: Text(m)))
                     .toList(),
                 onChanged: (v) => setState(() => _medicalCondition = v),
@@ -438,7 +357,7 @@ class _AddRefugeeScreenState extends State<AddRefugeeScreen> {
               const SizedBox(height: 10),
               _MultiSelectDropdown(
                 title: 'Special needs (optional)',
-                items: specialNeedsList,
+                items: RefugeeConstants.specialNeedsList,
                 selectedItems: _specialNeeds,
                 onChanged: (selected) => setState(() => _specialNeeds = selected),
               ),

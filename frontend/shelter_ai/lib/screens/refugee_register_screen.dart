@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shelter_ai/providers/auth_state.dart';
 import 'package:shelter_ai/services/auth_service.dart';
+import 'package:shelter_ai/widgets/form_card_container.dart';
 
 class RefugeeRegisterScreen extends StatefulWidget {
   const RefugeeRegisterScreen({super.key});
@@ -127,19 +128,7 @@ class _RefugeeRegisterScreenState extends State<RefugeeRegisterScreen> {
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x15000000),
-                  blurRadius: 18,
-                  offset: Offset(0, 10),
-                ),
-              ],
-            ),
+          child: FormCardContainer(
             child: Form(
               key: _formKey,
               child: Column(

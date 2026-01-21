@@ -8,6 +8,7 @@ import 'package:printing/printing.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:shelter_ai/models/refugee.dart';
 import 'package:shelter_ai/providers/auth_state.dart';
+import 'package:shelter_ai/utils/refugee_constants.dart';
 
 class RefugeeSelfFormQrScreen extends StatefulWidget {
   const RefugeeSelfFormQrScreen({super.key});
@@ -33,88 +34,6 @@ class _RefugeeSelfFormQrScreenState extends State<RefugeeSelfFormQrScreen> {
   final TextEditingController _phoneNumberCtrl = TextEditingController();
   final TextEditingController _emailCtrl = TextEditingController();
   final TextEditingController _addressCtrl = TextEditingController();
-
-  // Predefined lists
-  static const List<String> nationalities = [
-    'Afghan',
-    'Syrian',
-    'Palestinian',
-    'Somali',
-    'Sudanese',
-    'Turkish',
-    'Indian',
-    'Pakistani',
-    'Vietnamese',
-    'Congolese',
-    'Eritrean',
-    'Ethiopian',
-    'Iraqi',
-    'Iranian',
-    'Lebanese',
-    'Yemeni',
-    'Ukrainian',
-    'Venezuelan',
-    'Haitian',
-    'Other'
-  ];
-
-  static const List<String> languages = [
-    'Arabic',
-    'Spanish',
-    'English',
-    'French',
-    'Chinese',
-    'Russian',
-    'Hindi',
-    'Bengali',
-    'Portuguese',
-    'German',
-    'Japanese',
-    'Turkish',
-    'Pashto',
-    'Kurdish',
-    'Dari',
-    'Swahili',
-    'Vietnamese',
-    'Somali',
-    'Ukrainian',
-    'Other'
-  ];
-
-  static const List<String> medicalConditions = [
-    'Asthma',
-    'Diabetes',
-    'Hypertension',
-    'Heart disease',
-    'Arthritis',
-    'Cancer',
-    'HIV/AIDS',
-    'Tuberculosis',
-    'Pregnancy',
-    'Mental health condition',
-    'Physical disability',
-    'Visual impairment',
-    'Hearing impairment',
-    'Chronic pain',
-    'Medication dependent',
-    'Allergies',
-    'Other'
-  ];
-
-  static const List<String> specialNeedsList = [
-    'Psychological support',
-    'Family space',
-    'Privacy',
-    'Wheelchair accessibility',
-    'Childcare',
-    'Medical supervision',
-    'Language interpreter',
-    'Legal assistance',
-    'Educational support',
-    'Religious accommodation',
-    'Dietary restrictions',
-    'Other'
-  ];
 
   @override
   void dispose() {
@@ -508,7 +427,7 @@ class _RefugeeSelfFormQrScreenState extends State<RefugeeSelfFormQrScreen> {
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
                 value: _nationality,
-                items: nationalities.map((n) {
+                items: RefugeeConstants.nationalities.map((n) {
                   return DropdownMenuItem(value: n, child: Text(n));
                 }).toList(),
                 onChanged: (v) => setState(() => _nationality = v),
@@ -519,7 +438,7 @@ class _RefugeeSelfFormQrScreenState extends State<RefugeeSelfFormQrScreen> {
               const SizedBox(height: 10),
               _MultiSelectDropdown(
                 title: 'Languages (optional)',
-                items: languages,
+                items: RefugeeConstants.languages,
                 selectedItems: _languages,
                 onChanged: (selected) =>
                     setState(() => _languages = selected),
@@ -557,7 +476,7 @@ class _RefugeeSelfFormQrScreenState extends State<RefugeeSelfFormQrScreen> {
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
                 value: _medicalCondition,
-                items: medicalConditions.map((m) {
+                items: RefugeeConstants.medicalConditions.map((m) {
                   return DropdownMenuItem(value: m, child: Text(m));
                 }).toList(),
                 onChanged: (v) => setState(() => _medicalCondition = v),
@@ -573,7 +492,7 @@ class _RefugeeSelfFormQrScreenState extends State<RefugeeSelfFormQrScreen> {
               const SizedBox(height: 10),
               _MultiSelectDropdown(
                 title: 'Special needs (optional)',
-                items: specialNeedsList,
+                items: RefugeeConstants.specialNeedsList,
                 selectedItems: _specialNeeds,
                 onChanged: (selected) =>
                     setState(() => _specialNeeds = selected),
